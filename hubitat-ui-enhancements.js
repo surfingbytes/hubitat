@@ -10,14 +10,14 @@
 // @require  https://momentjs.com/downloads/moment.js
 // ==/UserScript==
 
-window.addEventListener("DOMContentLoaded", function(event) {
-  
+(function() {
+
 if (!document.title.includes('Hubitat'))
 	document.title = `Hubitat - ${document.title}`;
 
 var nav = document.getElementsByTagName("nav")[0];
 if (nav) {
-  if (![...nav.getElementsByClassName('mdl-navigation__link')].find(item => item.innerText.includes('Rule'))) {  
+  if (![...nav.getElementsByClassName('mdl-navigation__link')].find(item => item.innerText.includes('Rule'))) {
 	  var link = document.createElement("a");
     link.classList.add("mdl-navigation__link");
     link.href = "/installedapp/list?display=rulemachine";
@@ -33,9 +33,9 @@ if (window.location.href.endsWith('/installedapp/list?display=rulemachine')) {
 
   nav.getElementsByClassName('is-active')[0].classList.remove('is-active');
   link.classList.add('is-active');
-  
-  var table = document.getElementById('app-table');
-  var divs = table.getElementsByClassName('app-row-link');
+
+  var appTable = document.getElementById('app-table');
+  var divs = appTable.getElementsByClassName('app-row-link');
   var ruleMachine = [...divs].find(div => div.children[0].innerText == 'Rule Machine');
   var ruleMachineId = ruleMachine.parentElement.getAttribute('data-id');
 
@@ -46,10 +46,10 @@ if (window.location.href.endsWith('/installedapp/list?display=rulemachine')) {
                                         </a>`;
 
   var rules = [...ruleMachine.parentElement.parentElement.children].slice(1).map(rule => rule.children[2]);
-  //table.children[0].children[0].children[1].remove();
-  table.children[0].style.display = 'none';
+  //appTable.children[0].children[0].children[1].remove();
+  appTable.children[0].style.display = 'none';
 
-  var tbody = table.children[1];
+  var tbody = appTable.children[1];
   tbody.innerHTML = '';
   var lastRoom = '';
   rules.forEach(rule => {
@@ -59,13 +59,13 @@ if (window.location.href.endsWith('/installedapp/list?display=rulemachine')) {
     var room = ruleName.split(splitter)[0].trim();
 
     if (room != lastRoom) {
-      var tr = document.createElement("tr")
-      tr.classList.add("group");
-      tr.innerHTML = `<td style="display: none"></td><td><b>${room}</b></td>`;
-      tbody.append(tr);
+      var trRoom = document.createElement("tr")
+      trRoom.classList.add("group");
+      trRoom.innerHTML = `<td style="display: none"></td><td><b>${room}</b></td>`;
+      tbody.append(trRoom);
     }
     lastRoom = room;
-    
+
     var tr = document.createElement("tr")
     tr.innerHTML = `<td style="display: none"></td><td><div style="padding-left: 15px">${rule.innerHTML}</div></td>`;
     tbody.append(tr);
@@ -89,8 +89,8 @@ else if (window.location.href.includes('/device/edit/')) {
 else if (window.location.href.includes('/device/events/') && window.location.href.includes('display=graph')) {
   const capabilitiesToIgnore = ['driver', 'batteryLastReplaced', 'lastCheckin', 'notPresentCounter', 'restoredCounter', 'colorName', 'mediaSource', 'status'];
   var deviceId = document.getElementById('events-table').getAttribute('data-device-id');
-	var table = document.getElementById('mdl-table');
-  table.innerHTML = '<div id="chart"></div>';
+  var mdlTtable = document.getElementById('mdl-table');
+  mdlTtable.innerHTML = '<div id="chart"></div>';
   try {
     var req = new XMLHttpRequest();
 		req.responseType = 'json';
@@ -195,7 +195,7 @@ else if (window.location.href.includes('/device/events/') && window.location.hre
           series: { type: 'area', step: 'left' }
         }
       };
-      
+
 			window.requestAnimationFrame = unsafeWindow.requestAnimationFrame;
     	Highcharts.stockChart("chart", chart);
       } catch (ex) {
@@ -204,20 +204,20 @@ else if (window.location.href.includes('/device/events/') && window.location.hre
     };
     req.open('GET', `/device/events/${deviceId}/dataTablesJson?draw=1&columns[0][search][regex]=false&columns[1][search][regex]=false&columns[2][search][regex]=false&columns[3][search][regex]=false&columns[4][search][regex]=false&columns[5][search][regex]=false&columns[6][search][regex]=false&columns[7][name]=DATE&columns[7][search][regex]=false&order[0][column]=7&order[0][dir]=desc&start=0&length=200`);
     req.send();
-    
+
   } catch (ex) {
     alert(ex);
   }
 }
 else if (window.location.href.includes('/device/events/')) {
-	var searchBox = document.getElementById('searchBox').parentElement;
-  var navigation = document.getElementsByTagName('main')[0].children[0].children[0].children[0];
-  navigation.appendChild(searchBox);
+  var searchBox = document.getElementById('searchBox').parentElement;
+  var navigationEvents = document.getElementsByTagName('main')[0].children[0].children[0].children[0];
+  navigationEvents.appendChild(searchBox);
   //this doesn't work and the horizontal scrollbar is still there (width stays at 100%)
   //document.getElementById('events-table').style.width = 'calc(100% - 2px)';
 }
 
-});
+})();
 
 //can't be in DOMContentLoaded, it's plain text
 if (window.location.pathname == '/hub/zigbee/getChildAndRouteInfo') {
@@ -237,7 +237,7 @@ function getYAxis(capability) {
           text: capability
         }
       };
-  
+
   switch (capability)
 	{
     case 'switch':
@@ -266,7 +266,7 @@ function getYAxis(capability) {
       //axis.allowDecimals = false;
       break;
   }
-  
+
   return axis;
 }
 
@@ -293,7 +293,7 @@ function waitForRuleEditor(scroll) {
   var ruleText = span.innerHTML;
   var rules = ruleText.split(/\r?\n/).filter(x => x !== '');
   var script = document.createElement("script");
-  script.innerHTML = 
+  script.innerHTML =
 `function ruleEdit(action, index) {
   var ddl = document.getElementById(\`settings[$\{action\}Act]\`);
   ddl.selectedIndex = action == 'delete' ? index : index + 1;
@@ -301,9 +301,9 @@ function waitForRuleEditor(scroll) {
   return false;
 }`;
   document.head.appendChild(script);
-    
+
   var style = document.createElement("style");
-  style.innerHTML = 
+  style.innerHTML =
 `
 #ruleEditor {
   border-collapse: collapse;
