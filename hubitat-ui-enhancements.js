@@ -288,7 +288,6 @@ function waitForRuleEditor(scroll) {
     setTimeout(waitForRuleEditor, 300);
     return;
   }
-  try {
   var parent = document.getElementById('formApp').getElementsByClassName('mdl-grid')[0].children[0].children[0];
   var span = parent.children[0];
   var ruleText = span.innerHTML;
