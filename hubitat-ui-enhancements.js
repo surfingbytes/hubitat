@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name     Hubitat UI enhancements
+// @description     Hubitat UI enhancements
 // @version  1
-// @grant    none
+// @grant    unsafeWindow
 // @include  http://192.168.0.100/*
 // @require  https://code.highcharts.com/stock/highstock.js
 // @require  https://code.highcharts.com/stock/modules/data.js
@@ -13,8 +14,9 @@
 
 (function () {
   onLocationChanged();
-  if (!document.title.includes('Hubitat'))
+  if (!document.title.includes('Hubitat')) {
     document.title = `Hubitat - ${document.title}`;
+  }
 
   var nav = document.getElementsByTagName("nav")[0];
   if (nav) {
@@ -222,10 +224,11 @@
 
 //can't be in DOMContentLoaded, it's plain text
 if (window.location.pathname == '/hub/zigbee/getChildAndRouteInfo') {
-  if (!document.title)
+  if (!document.title) {
     document.title = 'Hubitat - Route info';
-  else if (!document.title.includes('Hubitat'))
+  } else if (!document.title.includes('Hubitat')) {
     document.title = `Hubitat - ${document.title}`;
+  }
 
   //encoding fix doesn't work, it would have to change to proper HTML instead of plain text
   //document.head.innerHTML = '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> ';
@@ -341,8 +344,9 @@ function waitForRuleEditor(scroll) {
   a.id = 'actions';
   parent.appendChild(a, 1);
   onRemove(table, function () { waitForRuleEditor(true); });
-  if (scroll)
+  if (scroll) {
     document.getElementById('actions').scrollIntoView();
+  }
 }
 
 function onLocationChanged() {
