@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name     Hubitat UI enhancements
 // @version  1
-// @grant    none
-// @include  http://192.168.0.100/*
+// @grant    unsafeWindow
+// @include  http://10.0.0.67/*
+// @include  http://hubitat-hub/*
 // @require  https://code.highcharts.com/stock/highstock.js
 // @require  https://code.highcharts.com/stock/modules/data.js
 // @require  https://code.highcharts.com/stock/highcharts-more.js
@@ -46,32 +47,39 @@
                                             <span class="he-add_2"></span> <span class="pre">Create New Rule</span>
                                         </a>`;
 
-    var rules = [...ruleMachine.parentElement.parentElement.children].slice(1).map(rule => rule.children[2]);
     //appTable.children[0].children[0].children[1].remove();
     appTable.children[0].style.display = 'none';
 
-    var tbody = appTable.children[1];
-    tbody.innerHTML = '';
+    var newBody = document.createElement("tbody");
     var lastRoom = '';
-    rules.forEach(rule => {
-      if (rule) {
-        var ruleName = rule.children[0].innerText;
-        var splitter = ruleName.includes('-') ? '-' : ' ';
-        var room = ruleName.split(splitter)[0].trim();
 
-        if (room != lastRoom) {
-          var trRoom = document.createElement("tr")
-          trRoom.classList.add("group");
-          trRoom.innerHTML = `<td style="display: none"></td><td><b>${room}</b></td>`;
-          tbody.append(trRoom);
-        }
-        lastRoom = room;
+    var apps = ['Rule Machine Legacy', 'Rule Machine'];
+    apps.forEach(app => {
+        var appdata = [...divs].find(div => div.children[0].innerText == app);
+        var rules = [...appdata.parentElement.parentElement.children].slice(1).map(rule => rule.children[2]);
 
-        var tr = document.createElement("tr")
-        tr.innerHTML = `<td style="display: none"></td><td><div style="padding-left: 15px">${rule.innerHTML}</div></td>`;
-        tbody.append(tr);
-      }
+        rules.forEach(rule => {
+          if (rule) {
+            var ruleName = rule.children[0].innerText;
+            var splitter = ruleName.includes('-') ? '-' : ' ';
+            var room = ruleName.split(splitter)[0].trim();
+
+            if (room != lastRoom) {
+              var trRoom = document.createElement("tr")
+              trRoom.classList.add("group");
+              trRoom.innerHTML = `<td style="display: none"></td><td><b>${room}</b></td>`;
+              newBody.append(trRoom);
+            }
+            lastRoom = room;
+
+            var tr = document.createElement("tr")
+            tr.innerHTML = `<td style="display: none"></td><td><div style="padding-left: 15px">${rule.innerHTML}</div></td>`;
+            newBody.append(tr);
+          }
+        });
     });
+    var tbody = appTable.children[1];
+    tbody.innerHTML = newBody.innerHTML;
   }
   else if (window.location.href.endsWith('/mainPage/selectActions')) {
     waitForRuleEditor(false);
