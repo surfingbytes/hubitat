@@ -9,13 +9,37 @@
 // @require  https://code.highcharts.com/stock/highcharts-more.js
 // @require  https://code.highcharts.com/stock/modules/exporting.js
 // @require  https://momentjs.com/downloads/moment.js
-// @run-at document-end
+// @run-at   document-end
 // ==/UserScript==
+
+const appsWithRules = ['Rule Machine', 'Rule Machine Legacy'];
+const capabilitiesToIgnoreInGraph = ['driver', 'batteryLastReplaced', 'lastCheckin', 'notPresentCounter', 'restoredCounter', 'colorName', 'mediaSource', 'status'];
+
 
 (function () {
   onLocationChanged();
   if (!document.title.includes('Hubitat')) {
     document.title = `Hubitat - ${document.title}`;
+  }
+  
+  var footer = document.getElementsByTagName('footer')[0];
+  if (footer.innerText.startsWith('Location')) {
+    var location = footer.getElementsByTagName('div')[0].getElementsByTagName('ul')[0].getElementsByTagName('li')[0].getElementsByTagName('a')[0];
+    var header = document.getElementById('topHeader').getElementsByClassName('mdl-layout__header-row')[0];
+    if (header) {
+      var titleStyle = document.createElement("style");
+      titleStyle.innerHTML =
+`.mdl-layout__title, .mdl-layout-title {
+  width: auto !important;
+}`;
+		  document.head.appendChild(titleStyle);
+      
+      var h5 = document.createElement('h5');
+      h5.appendChild(location);
+      location.style = 'color: #fff; margin-right: 10px;';
+      header.insertBefore(h5, header.getElementsByClassName('mdl-spinner')[0]);
+      footer.getElementsByTagName('div')[0].remove();
+    }
   }
 
   var nav = document.getElementsByTagName("nav")[0];
@@ -47,8 +71,15 @@
     buttonsContainer.children[0].innerHTML = `<a href="/installedapp/createchild/hubitat/Rule-5.1/parent/${ruleMachineId}" class="btn btn-default btn-lg btn-block hrefElem mdl-button--raised mdl-shadow--2dp" style="text-align:left">
                                             <span class="he-add_2"></span> <span class="pre">Create New Rule</span>
                                         </a>`;
+    
+    var appRows = [...divs].filter(div => appsWithRules.some(app => app == div.children[0].innerText));
 
-    var rules = [...ruleMachine.parentElement.parentElement.children].slice(1).map(rule => rule.children[2]);
+    var rules = appRows.flatMap(appRow => [...appRow.parentElement.parentElement.children].slice(1).map(rule => rule.children[2])).sort(
+      function(x, y) {
+        if (x.innerText < y.innerText) { return -1; }
+        if (x.innerText > y.innerText) { return 1; }
+        return 0;
+      });
     //appTable.children[0].children[0].children[1].remove();
     appTable.children[0].style.display = 'none';
 
@@ -90,7 +121,6 @@
     navigation.appendChild(graphLink);
   }
   else if (window.location.href.includes('/device/events/') && window.location.href.includes('display=graph')) {
-    const capabilitiesToIgnore = ['driver', 'batteryLastReplaced', 'lastCheckin', 'notPresentCounter', 'restoredCounter', 'colorName', 'mediaSource', 'status'];
     var deviceId = document.getElementById('events-table').getAttribute('data-device-id');
     var mdlTtable = document.getElementById('mdl-table');
     mdlTtable.innerHTML = '<div id="chart"></div>';
@@ -99,7 +129,7 @@
       req.responseType = 'json';
       req.onload = function () {
         try {
-          var capabilities = req.response.data.map(d => d[1]).filter((v, i, a) => a.indexOf(v) === i && capabilitiesToIgnore.indexOf(v) === -1);
+          var capabilities = req.response.data.map(d => d[1]).filter((v, i, a) => a.indexOf(v) === i && capabilitiesToIgnoreInGraph.indexOf(v) === -1);
           var chart = {
             chart: { type: 'area' },
             title: { text: "Events" },
