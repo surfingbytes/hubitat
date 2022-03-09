@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     Hubitat UI enhancements
 // @description     Hubitat UI enhancements
-// @version  1
+// @version  1.1
 // @grant    unsafeWindow
 // @include  http://192.168.0.100/*
 // @require  https://code.highcharts.com/stock/highstock.js
@@ -31,13 +31,21 @@ const capabilitiesToIgnoreInGraph = ['driver', 'batteryLastReplaced', 'lastCheck
       titleStyle.innerHTML =
 `.mdl-layout__title, .mdl-layout-title {
   width: auto !important;
+}
+
+h6.location {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  margin: 12px 0 6px;
 }`;
 		  document.head.appendChild(titleStyle);
       
-      var h5 = document.createElement('h5');
-      h5.appendChild(location);
+      var h6 = document.createElement('h6');
+      h6.className = 'location';
+      h6.appendChild(location);
       location.style = 'color: #fff; margin-right: 10px;';
-      header.insertBefore(h5, header.getElementsByClassName('mdl-spinner')[0]);
+      header.insertBefore(h6, header.getElementsByClassName('mdl-spinner')[0]);
       footer.getElementsByTagName('div')[0].remove();
     }
   }
