@@ -64,7 +64,7 @@ h6.location {
 
   if (window.location.href.endsWith('/installedapp/list?display=rulemachine')) {
     document.title = 'Hubitat - Rules';
-    document.getElementsByClassName('mdl-layout-title')[0].firstChild.innerHTML = 'Rules';
+    document.getElementById('topHeader').getElementsByTagName('h5')[0].innerHTML = 'Rules';
 
     nav.getElementsByClassName('is-active')[0].classList.remove('is-active');
     link.classList.add('is-active');
