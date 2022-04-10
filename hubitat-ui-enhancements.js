@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     Hubitat UI enhancements
 // @description     Hubitat UI enhancements
-// @version  1.1
+// @version  1.2
 // @grant    unsafeWindow
 // @include  http://192.168.0.100/*
 // @require  https://code.highcharts.com/stock/highstock.js
@@ -22,34 +22,6 @@ const capabilitiesToIgnoreInGraph = ['driver', 'batteryLastReplaced', 'lastCheck
     document.title = `Hubitat - ${document.title}`;
   }
   
-  var footer = document.getElementsByTagName('footer')[0];
-  if (footer.innerText.startsWith('Location')) {
-    var location = footer.getElementsByTagName('div')[0].getElementsByTagName('ul')[0].getElementsByTagName('li')[0].getElementsByTagName('a')[0];
-    var header = document.getElementById('topHeader').getElementsByClassName('mdl-layout__header-row')[0];
-    if (header) {
-      var titleStyle = document.createElement("style");
-      titleStyle.innerHTML =
-`.mdl-layout__title, .mdl-layout-title {
-  width: auto !important;
-}
-
-h6.location {
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: .02em;
-  margin: 12px 0 6px;
-}`;
-		  document.head.appendChild(titleStyle);
-      
-      var h6 = document.createElement('h6');
-      h6.className = 'location';
-      h6.appendChild(location);
-      location.style = 'color: #fff; margin-right: 10px;';
-      header.insertBefore(h6, header.getElementsByClassName('mdl-spinner')[0]);
-      footer.getElementsByTagName('div')[0].remove();
-    }
-  }
-
   var nav = document.getElementsByTagName("nav")[0];
   if (nav) {
     if (![...nav.getElementsByClassName('mdl-navigation__link')].find(item => item.innerText.includes('Rule'))) {
@@ -64,7 +36,7 @@ h6.location {
 
   if (window.location.href.endsWith('/installedapp/list?display=rulemachine')) {
     document.title = 'Hubitat - Rules';
-    document.getElementById('topHeader').getElementsByTagName('h5')[0].innerHTML = 'Rules';
+    document.getElementById('divHeaderPageName').innerHTML = 'Rules';
 
     nav.getElementsByClassName('is-active')[0].classList.remove('is-active');
     link.classList.add('is-active');
