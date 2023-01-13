@@ -3,7 +3,8 @@
 // @description     Hubitat UI enhancements
 // @version  1.2
 // @grant    unsafeWindow
-// @include  http://192.168.1.120/*
+// @include http*://192.168.1.120/*
+// @include http*://192.168.0.100/*
 // @require  https://code.highcharts.com/stock/highstock.js
 // @require  https://code.highcharts.com/stock/modules/data.js
 // @require  https://code.highcharts.com/stock/highcharts-more.js
